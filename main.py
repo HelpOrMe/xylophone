@@ -1,4 +1,4 @@
-import requests
+import os
 import random
 import math
 
@@ -10,25 +10,20 @@ def shuffled(arr):
     return arr
 
 
-def request_words_dict(sentences: int, words_in_sentence: int):
-    random_word_url_base = "https://random-word-form.herokuapp.com/random"
+def request_words_dict():
+    words_dict = {}
+    dictionary_path = os.path.join(os.path.dirname(__file__), "dictionary")
 
-    nouns = []
-    adjectives = []
+    for path, dirs, files in os.walk(dictionary_path):
+        for file in files:
+            words_type = file.split('#')[0]
+            words = open(os.path.join(path, file)).read().split(' ')
+            words_dict.setdefault(words_type, []).extend(words)
 
-    for _ in range(sentences):
-        # Сервер каждый раз возвращает слова начинающиеся на одинаковую букву, по-этому
-        # по запросу на предложение
+    for words in words_dict.values():
+        random.shuffle(words)
 
-        nouns.extend(requests.get(f"{random_word_url_base}/noun?count={words_in_sentence}").json())
-        adjectives.extend(requests.get(f"{random_word_url_base}/noun?count={words_in_sentence}").json())
-
-    return {
-        "nouns": nouns,
-        "adjectives": adjectives,
-        "verbs": shuffled(open("verbs.txt").read().replace('\t', ' ').replace('\n', ' ').split(' ')),
-        "dots": shuffled(list('.' * 5 + ',' * 5 + '!' * 2))
-    }
+    return words_dict
 
 
 def generate_text(words_dict, sentence_count: int, words_in_sentence: int):
@@ -73,9 +68,9 @@ def translate_a_few_times(text):
 def main():
     import sys
 
-    sentence_count = 4
+    sentence_count = 30
     words_in_sentence = 5
-    words_dict = request_words_dict(sentence_count, words_in_sentence)
+    words_dict = request_words_dict()
 
     if len(sys.argv) > 1:
         words_dict["additional"] = sys.argv[1:]
