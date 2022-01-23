@@ -1,12 +1,10 @@
-import argparse
-
 from deep_translator import GoogleTranslator
-from .base import StageBase, register_stage
+from .base import StageBase, ArgumentParser, register_stage
 
 
 @register_stage("translate")
 class Translate(StageBase):
-    _parser = argparse.ArgumentParser(
+    _parser = ArgumentParser(
         usage="xylophone -s translate [--from SOURCE] --to TARGET text",
         description="Text translator.",
         add_help=False)

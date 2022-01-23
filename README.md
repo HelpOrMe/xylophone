@@ -1,4 +1,6 @@
-# xbox-xylophone-xray
-Скрытый шланг означает пиршество по пошиву одежды в зоопарке для набросков ден-хилла ко дню труда. Сгорел,. Получите мудрость китайского кабачкового парикмахера.
+# xylophone
+Customizable dumbest random sentence generator ever!
 
-![image](https://user-images.githubusercontent.com/31995593/149429950-d985b253-4eac-48a7-afcc-b5d85b8ae07e.png)
+0% neural networks, 0% algorithms, 100% Chinese!
+
+![](git/cool_doggy.gif)

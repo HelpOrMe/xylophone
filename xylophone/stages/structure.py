@@ -1,7 +1,6 @@
-import argparse
 import random
 
-from .base import StageBase, register_stage
+from .base import StageBase, ArgumentParser, register_stage
 
 SENTENCE_STRUCTURES = [
     ["Obj", "Verb", "Obj"],
@@ -63,18 +62,25 @@ def _enchant_text_structure(text_structure):
 
 @register_stage("structure")
 class Structure(StageBase):
-    _parser = argparse.ArgumentParser(
-        usage="xylophone -s structure --obj OBJECTIVES --adj ADJECTIVES --verb VERBS "
-              "[--sub_sentence_count SUB_SENTENCE_COUNT] [--sentence_count SENTENCE_COUNT] [--seed SEED]",
-        description="Generate a sentence structure",
+    _parser = ArgumentParser(
+        usage="""xylophone -s structure --obj OBJECTIVES --adj ADJECTIVES --verb VERBS
+               [--forced_obj FORCED_OBJECTIVES]
+               [--foced_adj FORCED_ADJECTIVES] [--foced_verb FORCED_VERBS]
+               [--sub_sentence_count SUB_SENTENCE_COUNT]
+               [--sentence_count SENTENCE_COUNT] [--seed SEED]""",
+        description="Generate a sentence structure.",
         add_help=False)
 
-    _parser.add_argument("--obj", dest="objectives", type=str, required=True)
-    _parser.add_argument("--adj", dest="adjectives", type=str, required=True)
-    _parser.add_argument("--verb", dest="verbs", type=str, required=True)
+    _parser.add_argument("--obj", dest="objects", required=True)
+    _parser.add_argument("--adj", dest="adjectives", required=True)
+    _parser.add_argument("--verb", dest="verbs", required=True)
 
-    _parser.add_argument("--sub_sentence_count", dest="sub_sentence_count", default=2, type=int)
-    _parser.add_argument("--sentence_count", dest="sentence_count", default=1, type=int)
+    _parser.add_argument("--forced_obj", "-o", dest="forced_objects", default="")
+    _parser.add_argument("--forced_adj", "-a", dest="forced_adjectives", default="")
+    _parser.add_argument("--forced_verb", "-v", dest="forced_verbs", default="")
+
+    _parser.add_argument("--sub_sentence_count", default=2, type=int)
+    _parser.add_argument("--sentence_count", default=1, type=int)
     _parser.add_argument("--seed", dest="seed", default=None, type=int, help="PRNG seed.")
 
     def __init__(self, *args):
@@ -84,8 +90,14 @@ class Structure(StageBase):
         self._sub_sentence_count = self._args.sub_sentence_count
         self._sentence_count = self._args.sentence_count
 
+        self._forced_word_dict = {
+            "Obj": self._args.forced_objects.split(' '),
+            "Adj": self._args.forced_adjectives.split(' '),
+            "Verb": self._args.forced_verbs.split(' ')
+        }
+
         self._words_dict = {
-            "Obj": self._args.objectives.split(' '),
+            "Obj": self._args.objects.split(' '),
             "Adj": self._args.adjectives.split(' '),
             "Verb": self._args.verbs.split(' ')
         }
@@ -115,6 +127,13 @@ class Structure(StageBase):
     def _apply_words(self, text_structure: [str]) -> str:
         def setup_words(structure):
             for i, structure, part in _enumerate_structure_parts(structure):
+                if part in self._forced_word_dict:
+                    forced_words: [str] = self._forced_word_dict[part]
+                    if len(forced_words) > 0:
+                        pop_idx = self._random.randrange(0, len(forced_words))
+                        structure[i] = forced_words.pop(pop_idx)
+                        continue
+
                 if part in self._words_dict:
                     structure[i] = self._random.choice(self._words_dict[part])
 

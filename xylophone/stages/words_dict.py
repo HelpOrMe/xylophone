@@ -1,21 +1,19 @@
-import argparse
-
 from xylophone import resources
-from xylophone.stages.base import StageBase, register_stage
+from xylophone.stages.base import StageBase, ArgumentParser, register_stage
 
 
 @register_stage("words-dict")
 class WordsDict(StageBase):
-    _parser = argparse.ArgumentParser(
+    _parser = ArgumentParser(
         usage="xylophone -s words-dict [--obj-add OBJECTS_ADDITIONAL] [--adj-add ADJECTIVES_ADDITIONAL] "
               "[--verb-add VERBS_ADDITIONAL] [--obj_source OBJECTS_SOURCE] [--adj_source ADJECTIVES_SOURCE] "
               "[--verb_source VERBS_SOURCE]",
         description="Words dictionary source.",
         add_help=False)
 
-    _parser.add_argument("--obj-add", '-o', dest="objects_additional", default="")
-    _parser.add_argument("--adj-add", '-a', dest="adjectives_additional", default="")
-    _parser.add_argument("--verb-add", '-v', dest="verbs_additional", default="")
+    _parser.add_argument("--obj_add", dest="objects_additional", default="")
+    _parser.add_argument("--adj_add", dest="adjectives_additional", default="")
+    _parser.add_argument("--verb_add", dest="verbs_additional", default="")
 
     _parser.add_argument("--obj_source", dest="objects_source", default="default/objects.txt")
     _parser.add_argument("--adj_source", dest="adjectives_source", default="default/adjectives.txt")
